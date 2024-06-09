@@ -39,3 +39,6 @@ jobs:
 
             - name: run the tests
               run: cargo nextest run
+
+            - name: consult Clippy
+              run: cargo clippy

@@ -1,11 +1,12 @@
 [package]
 name = "nuclino-rs"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["C J Silverio <ceejceej@gmail.com>"]
 license = "Parity-7.0.0"
 readme = "README.md"
 repository = "https://github.com/ceejbot/nuclino-rs"
+rust-version = "1.65.0"
 
 [dependencies]
 serde = { version = "1.0.203", features = ["derive"] }
