@@ -144,7 +144,8 @@ impl Workspace {
     }
 }
 
-/// A field object, which is a piece of metadata for a page.
+/// `Fields` at the workspace level are metadata describing what
+/// metadata a single page can have.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Field {
@@ -157,46 +158,66 @@ pub struct Field {
 }
 
 impl Field {
+    /// The field's ID.
     pub fn id(&self) -> &Uuid {
         &self.id
     }
 
+    /// The field's name.
     pub fn name(&self) -> &str {
         self.name.as_str()
     }
 
+    /// What kind of field this is describing.
     pub fn field_type(&self) -> &FieldType {
         &self.field_type
     }
 
+    /// What this field's configuration is. The enum represents each category of config
+    /// that the API exposes. Select & multiselect fields use the same config type, as
+    /// do the timestamp field varieties.
     pub fn configuration(&self) -> &Config {
         &self.config
     }
 }
 
+/// What kind of config this field meta object has.
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(rename_all = "camelCase", untagged)]
 pub enum Config {
+    /// The default for fields is to require no configuration.
     #[default]
     None,
+    /// Configuration for number fields.
     Number {
+        /// Unsure what this means.
         fraction_digits: Option<usize>,
     },
+    /// Configuration for currency fields.
     Currency {
+        /// The name of the currency.
         currency: String,
+        /// Unsure what this means.
         fraction_digits: Option<usize>,
     },
+    /// A multiselect or single select field.
     Selections {
+        /// The list of possible options.
         options: Vec<Selection>,
     },
+    /// Configuration for timestamp fields.
     Timestamp {
+        /// Whether a timestamp field should be a date or a datetime.
         include_time: bool,
     },
 }
 
+/// A single selection option for a multiselect/select field.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Selection {
+    /// the id of this option
     id: Uuid,
+    /// the text to show for this option
     name: String,
 }
 
@@ -204,20 +225,32 @@ pub struct Selection {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum FieldType {
+    /// A date field.
     Date,
+    /// A plain text field.
     Text,
+    /// A number field.
     Number,
+    /// A currency field.
     Currency,
+    /// A single-select option field.
     Select,
+    /// A multi-select option field.
     MultiSelect,
+    /// Multiple collaborators?
     MultiCollaborator,
+    /// A field showing who created something.
     CreatedBy,
+    /// A field showing who last modified something.
     LastUpdatedBy,
+    /// A timestamp field recording when an item was created.
     CreatedAt,
+    /// A timestamp field record when an item was last modified.
     UpdatedAt,
 }
 
 impl FieldType {
+    /// A convenience for checking if a field type has config.
     pub fn has_config(&self) -> bool {
         matches!(
             self,
@@ -239,11 +272,14 @@ impl FieldType {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "object", rename_all = "camelCase")]
 pub enum Page {
+    /// Regular wiki pages with markdown content.
     Item(Item),
+    /// Collection pages, which contain only lists of other pages.
     Collection(Collection),
 }
 
 impl Page {
+    /// The id of this page.
     pub fn id(&self) -> &Uuid {
         match self {
             Page::Item(v) => v.id(),
@@ -251,6 +287,7 @@ impl Page {
         }
     }
 
+    /// The workspace this page belongs to.
     pub fn workspace(&self) -> &Uuid {
         match self {
             Page::Item(v) => v.workspace(),
@@ -258,12 +295,15 @@ impl Page {
         }
     }
 
+    /// The url of this page.
     pub fn url(&self) -> &str {
         match self {
             Page::Item(v) => v.url(),
             Page::Collection(v) => v.url(),
         }
     }
+
+    /// The title of this page.
     pub fn title(&self) -> &str {
         match self {
             Page::Item(v) => v.title(),
@@ -271,6 +311,7 @@ impl Page {
         }
     }
 
+    /// When this page was created, as an ISO-8601-formatted string.
     pub fn created(&self) -> &str {
         match self {
             Page::Item(v) => v.created(),
@@ -278,6 +319,7 @@ impl Page {
         }
     }
 
+    /// The id of the user who created this page.
     pub fn created_by(&self) -> &Uuid {
         match self {
             Page::Item(v) => v.created_by(),
@@ -285,6 +327,7 @@ impl Page {
         }
     }
 
+    /// When this page was last modified, as an ISO-8601-formatted string.
     pub fn modified(&self) -> &str {
         match self {
             Page::Item(v) => v.modified(),
@@ -292,6 +335,7 @@ impl Page {
         }
     }
 
+    /// The id of the user who last modified this page.
     pub fn modified_by(&self) -> &Uuid {
         match self {
             Page::Item(v) => v.modified_by(),
@@ -445,6 +489,7 @@ impl Item {
     }
 }
 
+/// A structure holding metadata about a single item.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Meta {
@@ -454,6 +499,7 @@ pub struct Meta {
     pub file_ids: Vec<Uuid>,
 }
 
+/// A downloadable file object, associated with a regular wiki page.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct File {
@@ -471,36 +517,41 @@ impl File {
         &self.id
     }
 
+    /// I'm not sure what the item id is.
     pub fn item_id(&self) -> &Uuid {
         &self.item_id
     }
 
+    /// The name of the file that can be downloaded.
     pub fn filename(&self) -> &str {
         self.file_name.as_str()
     }
 
+    /// When this downloadable item was added to the wikie.
     pub fn created(&self) -> &str {
         self.created_at.as_str()
     }
 
+    /// The ID of the user who added this downloadable item to the wiki.
     pub fn created_by(&self) -> &Uuid {
         &self.created_user_id
     }
 
+    /// A link to download the file from, with its expiration time.
     pub fn download_info(&self) -> &DownloadInfo {
         &self.download
     }
 }
 
+/// Information required to download a file.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DownloadInfo {
-    /// Download URL to the file which is valid for 10 minutes.
-    url: String,
-    expires_at: String, // date
+    /// Download URL to the file. This link is valid for 10 minutes after creation.
+    pub url: String,
+    /// An ISO-8601-formatted string representing when this download link expires.
+    pub expires_at: String,
 }
-
-impl DownloadInfo {}
 
 #[cfg(test)]
 mod tests {

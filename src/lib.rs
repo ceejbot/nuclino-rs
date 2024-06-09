@@ -1,21 +1,37 @@
-//! This is a Rust module-level documentation string. It documents the module.
-//! This is a flammenwerfer. It werfs flammen.
+//! A client for the Nuclino wiki service API. You can find documentation for
+//! the api [on Nuclino's own wiki](https://help.nuclino.com/d3a29686-api). This client should
+//! be complete, in that it exposes functions for all the documented endpoints. Also, it
+//! can successfully deserialize all the example API response structures.
+//!
+//! TYou are most likely to construct the `nuclino_rs::Client` struct, and then consume
+//! the data returned. There are only two other things the api allows you to create:
+//! a `Collection` and an `Item`. Items are regular wiki pages with markdown content.
+//! Collections are special pages that only contain lists of other pages. This library
+//! groups those two kinds of page via the `Page` enum, which has variants for each.
+//! `Page` has conveniences for getting at the data both kinds of page have in common.
+//! To build a new page, use the `NewPageBuilder` struct, which attempts to maintain the
+//! contraints Nuclino puts on each type. (The same endpoint is used to create both page
+//! variations, based on what data you post to it.)
 
 #![deny(future_incompatible, clippy::unwrap_used)]
-#![warn(rust_2018_idioms, trivial_casts)]
+#![warn(rust_2018_idioms, trivial_casts, missing_docs)]
 
-pub mod errors;
+mod errors;
 mod request_types;
 mod response_types;
 mod types;
 
-use errors::*;
-pub use request_types::*;
+use errors::make_error;
 use response_types::*;
+
+// Our library exports.
+pub use errors::{NuclinoError, NuclinoResult};
+pub use request_types::*;
 pub use types::*;
 
 use serde::{Deserialize, Serialize};
 use urlencoding::encode;
+/// Re-exporting the uuid crate, because types.
 pub use uuid::Uuid;
 
 /// The base url for the entire API.
@@ -233,18 +249,12 @@ impl Client {
         Ok(list.as_vec())
     }
 
-    // TODO extract commonalities
-
-    /// Internal details of the `GET` implementation.
-    fn get<T>(&self, path: String) -> NuclinoResult<T>
+    /// Response processing common to all ureq http method wrappers.
+    /// This function consumes the ureq Response data.
+    fn process_response<T>(&self, response: ureq::Response) -> NuclinoResult<T>
     where
         T: for<'de> Deserialize<'de> + Clone,
     {
-        let response = self
-            .client
-            .get(path.as_str())
-            .set("Authorization", &self.apikey)
-            .call()?;
         let status = response.status();
         let body: Response<T> = response.into_json::<Response<T>>()?;
         if body.is_success() {
@@ -258,6 +268,20 @@ impl Client {
         }
     }
 
+    /// Internal details of the `GET` implementation.
+    fn get<T>(&self, path: String) -> NuclinoResult<T>
+    where
+        T: for<'de> Deserialize<'de> + Clone,
+    {
+        let response = self
+            .client
+            .get(path.as_str())
+            .set("Authorization", &self.apikey)
+            .call()?;
+        self.process_response(response)
+    }
+
+    /// Internal details of the `PUT` implementation.
     fn put<T>(&self, path: String, payload: impl Serialize) -> NuclinoResult<T>
     where
         T: for<'de> Deserialize<'de> + Clone,
@@ -267,17 +291,7 @@ impl Client {
             .put(path.as_str())
             .set("Authorization", &self.apikey)
             .send_json(payload)?;
-        let status = response.status();
-        let body: Response<T> = response.into_json()?;
-        if body.is_success() {
-            if let Some(data) = body.data() {
-                Ok(data.clone())
-            } else {
-                Err(NuclinoError::NoDataReturned)
-            }
-        } else {
-            Err(make_error(status, body.message()))
-        }
+        self.process_response(response)
     }
 
     fn post<T>(&self, path: String, payload: impl Serialize) -> NuclinoResult<T>

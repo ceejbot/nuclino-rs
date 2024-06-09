@@ -4,11 +4,14 @@ use serde::Serialize;
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
+/// An enum used by NewPage to represent the kind of page being created.
 #[derive(Debug, Clone, Serialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub enum PageKind {
+    /// Creating a regular wiki page.
     #[default]
     Item,
+    /// Creating a collection.
     Collection,
 }
 
@@ -84,28 +87,34 @@ impl NewPageBuilder {
         }
     }
 
+    /// Set the title of the new page.
     pub fn title(&mut self, title: &str) -> &mut Self {
         self.title = Some(title.to_string());
         self
     }
 
+    /// Choose where to create this page in a list of existing children of the page's intended parent.
     pub fn index(&mut self, index: usize) -> &mut Self {
         self.index = Some(index);
         self
     }
 
+    /// Create this new page at the top level of the workspace with this id. Mutually exclusive with parent().
     pub fn workspace(&mut self, id: &Uuid) -> &mut Self {
         self.workspace_id = Some(*id);
         self.parent_id = None;
         self
     }
 
+    /// Create this new page as a child of a specific parent page. Mutually exclusive with workspace().
     pub fn parent(&mut self, id: &Uuid) -> &mut Self {
         self.parent_id = Some(*id);
         self.workspace_id = None;
         self
     }
 
+    /// Provide markdown-formatted content for this new page. Ignored for collections, even if
+    /// set, because the Nuclino API will treat that as an error.
     pub fn content(&mut self, content: &str) -> &mut Self {
         self.content = Some(content.to_string());
         self
