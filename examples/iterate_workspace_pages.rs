@@ -1,4 +1,4 @@
-use nuclino_rs::errors::NuclinoError;
+use nuclino_rs::NuclinoError;
 use nuclino_rs::Page;
 use owo_colors::OwoColorize;
 
