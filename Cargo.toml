@@ -1,5 +1,6 @@
 [package]
 name = "nuclino-rs"
+description = "A client for the Nuclino wiki API."
 version = "1.0.0"
 edition = "2021"
 authors = ["C J Silverio <ceejceej@gmail.com>"]
