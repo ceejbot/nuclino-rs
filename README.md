@@ -9,7 +9,7 @@ This is a Rust client for the [Nuclino API](https://help.nuclino.com/d3a29686-ap
 
  `cargo add nuclino-rs` in your project to add the library. There are no optional features. Create an [API key](https://help.nuclino.com/04598850-manage-api-keys) for Nuclino. Provide it in the env var `NUCLINO_API_KEY` and call `nuclino_rs::Client::create_from_env()` to create a default client. Or you can provide it to your program in some other way and pass it to the client `create()` function.and then start making requests using the client's functions.
 
- `cargo doc --open` has more information.
+ `cargo doc --open` has more information, as do [the online docs](https://docs.rs/nuclino-rs/latest/nuclino_rs/).
 
 ## Example
 
@@ -35,8 +35,6 @@ See `examples/iterate_workspace_pages.rs` for a more complex example of accessin
 The API should be completely covered and theoretically working. The parts I've needed to use for my project are definitely working. Known work that I'd like to do:
 
 - handle rate limiting
-- break up the `types.rs` file into related sections
-- publish the crate
 
 ## LICENSE
 
