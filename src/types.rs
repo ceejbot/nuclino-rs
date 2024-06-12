@@ -269,7 +269,7 @@ impl FieldType {
 /// a list of items. The enum provides implementations for the functions
 /// its variants have in common, so you can avoid accessing the variant
 /// data unless you need to.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(tag = "object", rename_all = "camelCase")]
 pub enum Page {
     /// Regular wiki pages with markdown content.
@@ -347,7 +347,7 @@ impl Page {
 /// A "collection" is a kind of page in the Nuclino wiki. Collections are lists of items
 ///  shown on a single page in the Nuclino wiki. Unlike "items", collections do not include
 /// any markdown-formatted content.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Collection {
     id: Uuid,
@@ -410,7 +410,7 @@ impl Collection {
 
 /// A Nuclino page with markdown content optionally included. The API refers
 /// to this as an "item" to distinguish it from collections, which are lists of items.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Item {
     id: Uuid,

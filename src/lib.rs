@@ -22,14 +22,12 @@ mod response_types;
 mod types;
 
 use errors::make_error;
-use response_types::*;
-
 // Our library exports.
 pub use errors::{NuclinoError, NuclinoResult};
 pub use request_types::*;
-pub use types::*;
-
+use response_types::*;
 use serde::{Deserialize, Serialize};
+pub use types::*;
 use urlencoding::encode;
 /// Re-exporting the uuid crate, because types.
 pub use uuid::Uuid;

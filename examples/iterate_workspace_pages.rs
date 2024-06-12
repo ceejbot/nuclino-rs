@@ -1,5 +1,4 @@
-use nuclino_rs::NuclinoError;
-use nuclino_rs::Page;
+use nuclino_rs::{NuclinoError, Page};
 use owo_colors::OwoColorize;
 
 fn main() -> Result<(), NuclinoError> {
