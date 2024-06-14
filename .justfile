@@ -11,7 +11,9 @@ fmt:
 
 # Install required tools
 setup:
-	cargo install tomato-toml nextest
+	brew tap ceejbot/tap
+	brew install fzf tomato cargo-nextest
+	rustup install nightly
 
 # Tag a new version for release.
 tag VERSION:
