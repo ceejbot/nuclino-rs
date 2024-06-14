@@ -247,6 +247,19 @@ impl Client {
         Ok(list.as_vec())
     }
 
+    /// Get file metadata.
+    pub fn file(&self, id: &Uuid) -> NuclinoResult<File> {
+        let url = format!("{}/v0/file/{id}", self.baseurl);
+        let file_info = self.get::<File>(url)?;
+        Ok(file_info)
+    }
+
+    /// Download a file given the download url.
+    pub fn download_file(&self, url: &str) -> NuclinoResult<Vec<u8>> {
+        let bytes = self.get::<Vec<u8>>(url.to_string())?;
+        Ok(bytes)
+    }
+
     /// Response processing common to all ureq http method wrappers.
     /// This function consumes the ureq Response data.
     fn process_response<T>(&self, response: ureq::Response) -> NuclinoResult<T>

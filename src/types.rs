@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
 /// An id-only response structure, returned by `DELETE` endpoints.
@@ -19,6 +20,7 @@ impl IdOnly {
 }
 
 /// A Nuclino user.
+#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
@@ -26,7 +28,7 @@ pub struct User {
     first_name: String,
     last_name: String,
     email: String,
-    avatar_url: String,
+    avatar_url: Option<String>,
 }
 
 impl User {
@@ -51,8 +53,8 @@ impl User {
     }
 
     /// A url for this user's avatar.
-    pub fn avatar_url(&self) -> &str {
-        self.avatar_url.as_str()
+    pub fn avatar_url(&self) -> Option<&String> {
+        self.avatar_url.as_ref()
     }
 }
 
