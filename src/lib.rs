@@ -41,6 +41,7 @@ pub static APIKEY_ENV_VAR: &str = "NUCLINO_API_KEY";
 /// A client for the Nuclino api. This struct maintains whatever state we need
 /// for making requests as a specific user. The functions provided are conveniences
 /// for accessing endpoints in the [official Nuclino API](https://help.nuclino.com/d3a29686-api).
+#[derive(Debug)]
 pub struct Client {
     apikey: String,
     baseurl: String,
