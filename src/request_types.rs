@@ -36,6 +36,7 @@ pub struct NewPage {
 }
 
 /// The builder pattern for new items and collections.
+#[derive(Debug, Clone)]
 pub struct NewPageBuilder {
     workspace_id: Option<Uuid>,
     parent_id: Option<Uuid>,
