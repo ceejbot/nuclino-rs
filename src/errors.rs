@@ -1,5 +1,7 @@
 //! Client errors, with one-hopes-helpful messages.
 
+use std::num::ParseIntError;
+
 use thiserror::Error;
 
 /// A convenient alias for the error type used by all crate functions.
@@ -13,6 +15,9 @@ pub enum NuclinoError {
     /// Api key env var was required, but not found.
     #[error("Cannot find an API key in the process environment.")]
     ApiKeyNotFound,
+    /// A file download attempt got an http status response we could not handle.
+    #[error("Received an unexpected http status response: {0}")]
+    UnexpectedStatusCode(u16),
     /// The Nuclino API reported a 4xx error in the client's request.
     #[error("Client error: status={status}; {message}")]
     ClientError {
@@ -38,6 +43,9 @@ pub enum NuclinoError {
     /// An error in serializing or deserializing json.
     #[error(transparent)]
     JsonError(#[from] serde_json::Error),
+    /// An error in parsing a string as an integer.
+    #[error(transparent)]
+    ParseError(#[from] ParseIntError),
     /// A successful response from Nuclino did not include a data field in its wrapper.
     #[error("Didn't get a data field on the response")]
     NoDataReturned,

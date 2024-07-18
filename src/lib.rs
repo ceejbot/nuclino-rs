@@ -21,6 +21,8 @@ mod request_types;
 mod response_types;
 mod types;
 
+use std::io::Read;
+
 use errors::make_error;
 // Our library exports.
 pub use errors::{NuclinoError, NuclinoResult};
@@ -250,14 +252,28 @@ impl Client {
 
     /// Get file metadata.
     pub fn file(&self, id: &Uuid) -> NuclinoResult<File> {
-        let url = format!("{}/v0/file/{id}", self.baseurl);
+        let url = format!("{}/v0/files/{id}", self.baseurl);
         let file_info = self.get::<File>(url)?;
         Ok(file_info)
     }
 
     /// Download a file given the download url.
     pub fn download_file(&self, url: &str) -> NuclinoResult<Vec<u8>> {
-        let bytes = self.get::<Vec<u8>>(url.to_string())?;
+        let response = self.client.get(url).call()?;
+        let status = response.status();
+        if status > 299 {
+            return Err(NuclinoError::UnexpectedStatusCode(status));
+        }
+        let len = if let Some(header) = response.header("Content-Length") {
+            header.parse().unwrap_or(10_000_000)
+        } else {
+            10_000_000
+        };
+        let mut bytes: Vec<u8> = Vec::with_capacity(len);
+        response
+            .into_reader()
+            .take(10_000_000)
+            .read_to_end(&mut bytes)?;
         Ok(bytes)
     }
 
